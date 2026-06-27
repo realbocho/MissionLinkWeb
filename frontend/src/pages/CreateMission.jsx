@@ -19,7 +19,7 @@ export default function CreateMission() {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     title: '', description: '', goal_amount: '',
-    winner_count: '1', weighted: true, openchat_link: ''
+    winner_count: '1', weighted: true, openchat_link: '', contact_email: ''
   })
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -36,6 +36,7 @@ export default function CreateMission() {
         winner_count: parseInt(form.winner_count) || 1,
         weighted: form.weighted,
         openchat_link: form.openchat_link.trim() || null,
+        contact_email: form.contact_email.trim() || null,
       })
       navigate(`/mission/${mission.id}`)
     } catch (e) {
@@ -110,6 +111,14 @@ export default function CreateMission() {
               style={{ color: 'var(--accent)', fontWeight: 600 }}>
               오픈채팅방 만드는 법 가이드 →
             </a>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="label">당첨자 연락용 이메일</div>
+          <input className="input" type="email" placeholder="예) creator@email.com" value={form.contact_email} onChange={e => set('contact_email', e.target.value)} />
+          <div style={{ fontSize: 12, color: 'var(--text-hint)', marginTop: 6, lineHeight: 1.6 }}>
+            추첨 당첨자에게 공개돼요. 당첨자가 이 이메일로 직접 연락해요.
           </div>
         </div>
 
