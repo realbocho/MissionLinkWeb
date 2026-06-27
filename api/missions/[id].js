@@ -6,25 +6,50 @@ export default async function handler(req, res) {
   const { id } = req.query
 
   if (req.method === 'GET') {
+    // 미션 기본 정보
     const { data: mission, error } = await supabase
       .from('missions')
-      .select(`
-        *,
-        creator:users!missions_creator_id_fkey(id, nickname, profile_image),
-        pledges(
-          id, amount, status, user_id, created_at,
-          user:users!pledges_user_id_fkey(id, nickname, profile_image)
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single()
 
-    if (error) return res.status(404).json({ error: '미션을 찾을 수 없어요' })
+    if (error || !mission) return res.status(404).json({ error: '미션을 찾을 수 없어요' })
 
-    mission.pledges = (mission.pledges || [])
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    // 크리에이터 정보 별도 조회
+    const { data: creator } = await supabase
+      .from('users')
+      .select('id, nickname, profile_image')
+      .eq('id', mission.creator_id)
+      .single()
 
-    return res.status(200).json(mission)
+    // 후원 의향 목록 별도 조회
+    const { data: pledges } = await supabase
+      .from('pledges')
+      .select('id, amount, status, user_id, created_at')
+      .eq('mission_id', id)
+      .order('created_at', { ascending: false })
+
+    // 후원자 정보 조회
+    const userIds = [...new Set((pledges || []).map(p => p.user_id))]
+    let usersMap = {}
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, nickname, profile_image')
+        .in('id', userIds)
+      if (users) users.forEach(u => { usersMap[u.id] = u })
+    }
+
+    const pledgesWithUser = (pledges || []).map(p => ({
+      ...p,
+      user: usersMap[p.user_id] || null
+    }))
+
+    return res.status(200).json({
+      ...mission,
+      creator,
+      pledges: pledgesWithUser
+    })
   }
 
   if (req.method === 'PATCH') {
