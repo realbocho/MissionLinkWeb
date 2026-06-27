@@ -195,7 +195,11 @@ export default function MissionDetail() {
         <span className="topbar-title">미션</span>
       </div>
 
-      <div className="page" style={{ paddingTop: 12 }}>
+      <div className="page" style={{
+        paddingTop: 12,
+        opacity: mission.status === 'expired' ? 0.55 : 1,
+        filter: mission.status === 'expired' ? 'grayscale(70%)' : 'none'
+      }}>
         {/* 헤더 */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
           <div onClick={() => navigate(`/creator/${mission.creator_id}`)} style={{ cursor: 'pointer', flexShrink: 0 }}>
@@ -288,7 +292,7 @@ export default function MissionDetail() {
           <PledgeForm mission={mission} refetch={refetch} />
         )}
 
-        {/* 달성 배너 */}
+        {/* 달성 배너 — 진행 중일 때만 */}
         {done && mission.status === 'active' && (
           <div style={{
             background: 'linear-gradient(135deg, var(--accent)22, #ec489922)',
@@ -303,21 +307,6 @@ export default function MissionDetail() {
             </div>
           </div>
         )}
-        {done && mission.status === 'expired' && (
-          <div style={{
-            background: 'var(--bg-secondary)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 'var(--radius)', padding: 16,
-            textAlign: 'center', marginBottom: 12
-          }}>
-            <div style={{ fontSize: 32 }}>✅</div>
-            <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4, color: 'var(--text-hint)' }}>목표 달성 후 만료됨</div>
-            <div style={{ fontSize: 13, color: 'var(--text-hint)', marginTop: 4 }}>
-              크리에이터가 미션을 완료했어요
-            </div>
-          </div>
-        )}
-
         {/* 크리에이터 전용 — 만료 버튼 + 수수료 안내 */}
         {isCreator && mission.status !== 'expired' && (
           <>
