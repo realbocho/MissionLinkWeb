@@ -289,7 +289,7 @@ export default function MissionDetail() {
         )}
 
         {/* 달성 배너 */}
-        {done && (
+        {done && mission.status === 'active' && (
           <div style={{
             background: 'linear-gradient(135deg, var(--accent)22, #ec489922)',
             border: '1px solid var(--accent)',
@@ -300,6 +300,20 @@ export default function MissionDetail() {
             <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>목표 달성!</div>
             <div style={{ fontSize: 13, color: 'var(--text-hint)', marginTop: 4 }}>
               초과 후원도 계속 받을 수 있어요
+            </div>
+          </div>
+        )}
+        {done && mission.status === 'expired' && (
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 'var(--radius)', padding: 16,
+            textAlign: 'center', marginBottom: 12
+          }}>
+            <div style={{ fontSize: 32 }}>✅</div>
+            <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4, color: 'var(--text-hint)' }}>목표 달성 후 만료됨</div>
+            <div style={{ fontSize: 13, color: 'var(--text-hint)', marginTop: 4 }}>
+              크리에이터가 미션을 완료했어요
             </div>
           </div>
         )}
