@@ -68,6 +68,7 @@ export default async function handler(req, res) {
         winner_count: winner_count === undefined ? 1 : parseInt(winner_count),
         weighted: weighted !== false,
         openchat_link: openchat_link?.trim() || null,
+        contact_email: req.body.contact_email?.trim() || null,
       })
       .select()
       .single()
