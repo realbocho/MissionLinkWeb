@@ -1,33 +1,58 @@
 import { supabase } from '../../lib/supabase.js'
-import { withAuth, verifyToken } from '../../lib/auth.js'
+import { verifyToken } from '../../lib/auth.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
 
-  // GET — 미션 목록 (공개)
   if (req.method === 'GET') {
     const { creator_id, status } = req.query
     let query = supabase
       .from('missions')
-      .select(`*, creator:users!creator_id(id, nickname, profile_image), pledges(id, status)`)
+      .select(`
+        *,
+        creator:users!missions_creator_id_fkey(id, nickname, profile_image),
+        pledges(id, amount, status, user_id, created_at)
+      `)
       .order('created_at', { ascending: false })
 
     if (creator_id) query = query.eq('creator_id', String(creator_id))
     if (status) query = query.eq('status', status)
 
-    const { data, error } = await query
+    const { data: missions, error } = await query
     if (error) return res.status(500).json({ error: error.message })
-    return res.status(200).json(data)
+
+    // 각 미션의 pledges에 user 정보 추가
+    const allUserIds = [...new Set(
+      (missions || []).flatMap(m => (m.pledges || []).map(p => p.user_id))
+    )]
+
+    let usersMap = {}
+    if (allUserIds.length > 0) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, nickname, profile_image')
+        .in('id', allUserIds)
+      if (users) users.forEach(u => { usersMap[u.id] = u })
+    }
+
+    const result = (missions || []).map(m => ({
+      ...m,
+      pledges: (m.pledges || []).map(p => ({
+        ...p,
+        user: usersMap[p.user_id] || null
+      }))
+    }))
+
+    return res.status(200).json(result)
   }
 
-  // POST — 미션 생성 (인증 필요)
   if (req.method === 'POST') {
     const authHeader = req.headers['authorization']
     if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: '로그인이 필요해요' })
     const webUser = verifyToken(authHeader.slice(7))
     if (!webUser) return res.status(401).json({ error: '유효하지 않은 토큰이에요' })
 
-    const { title, description, goal_amount, winner_count, weighted, openchat_link, tiers } = req.body
+    const { title, description, goal_amount, winner_count, weighted, openchat_link } = req.body
 
     if (!title?.trim()) return res.status(400).json({ error: '미션 제목을 입력해주세요' })
     if (!description?.trim()) return res.status(400).json({ error: '미션 내용을 입력해주세요' })
@@ -48,20 +73,6 @@ export default async function handler(req, res) {
       .single()
 
     if (error) return res.status(500).json({ error: error.message })
-
-    // 티어 저장
-    if (tiers && tiers.length > 0) {
-      const tierRows = tiers
-        .filter(t => t.name && t.amount)
-        .map((t, i) => ({
-          mission_id: mission.id,
-          name: t.name,
-          amount_ton: parseInt(t.amount),
-          sort_order: i
-        }))
-      if (tierRows.length > 0) await supabase.from('tiers').insert(tierRows)
-    }
-
     return res.status(201).json(mission)
   }
 
