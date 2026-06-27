@@ -132,6 +132,7 @@ export default function MissionDetail() {
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const [expireLoading, setExpireLoading] = useState(false)
   console.log('[MissionDetail] webUser.id:', webUser?.id, '/ creator_id:', mission?.creator_id)
+  console.log('[MissionDetail] mission keys:', mission ? Object.keys(mission) : 'null')
   const isCreator = webUser && String(webUser.id) === String(mission?.creator_id)
 
   const handleShareMission = async () => {
