@@ -12,7 +12,11 @@ export default function MissionCard({ mission }) {
   const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0
 
   return (
-    <div className="card" onClick={() => navigate(`/mission/${mission.id}`)} style={{ cursor: 'pointer', marginBottom: 12 }}>
+    <div className="card" onClick={() => navigate(`/mission/${mission.id}`)} style={{
+      cursor: 'pointer', marginBottom: 12,
+      opacity: mission.status === 'expired' ? 0.5 : 1,
+      filter: mission.status === 'expired' ? 'grayscale(60%)' : 'none'
+    }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
         <Avatar user={mission.creator} />
         <div style={{ flex: 1, minWidth: 0 }}>
