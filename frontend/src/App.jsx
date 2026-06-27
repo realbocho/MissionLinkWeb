@@ -9,6 +9,7 @@ import RequestMission from './pages/RequestMission.jsx'
 import IncomingRequests from './pages/IncomingRequests.jsx'
 import Login from './pages/Login.jsx'
 import Notifications from './pages/Notifications.jsx'
+import OpenchatGuide from './pages/OpenchatGuide.jsx'
 import { isLoggedIn } from './utils/auth.js'
 
 const HIDE_NAV = ['/mission/', '/creator/', '/requests', '/login', '/notifications']
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/creator/:creatorId/request" element={<PrivateRoute><RequestMission /></PrivateRoute>} />
         <Route path="/requests" element={<PrivateRoute><IncomingRequests /></PrivateRoute>} />
         <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+        <Route path="/guide/openchat" element={<OpenchatGuide />} />
       </Routes>
       {!hideNav && <BottomNav />}
     </>
