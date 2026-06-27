@@ -53,7 +53,7 @@ export default function RequestMission() {
           <div className="label">어떤 미션을 원하시나요?</div>
           <textarea
             className="input"
-            placeholder="라이브 쿡방을 진행해주세요! / 비하인드 영상을 공개해주세요! / 팬이 신청한 노래를 불러주세요! 등등.."
+            placeholder="라이브 쿡방을 진행해주세요! / 비하인드 영상을 공개해주세요! / 팬이 신청한 노래를 불러주세요! / 굿즈 만들어주세요! 등등.."
             value={content}
             onChange={e => setContent(e.target.value)}
             rows={5}
