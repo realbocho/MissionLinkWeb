@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getMissions } from '../utils/api.js'
 import MissionCard from '../components/MissionCard.jsx'
 import Avatar from '../components/Avatar.jsx'
-import { copyToClipboard, showAlert, getCreatorLink, getWebUser } from '../utils/web.js'
+import { copyToClipboard, showAlert, getCreatorLink, getWebUser, formatAmount } from '../utils/web.js'
 
 export default function CreatorProfile() {
   const { creatorId } = useParams()
@@ -18,12 +18,19 @@ export default function CreatorProfile() {
   useEffect(() => {
     Promise.all([
       getMissions({ creator_id: creatorId, status: 'active' }),
-      getMissions({ creator_id: creatorId, status: 'completed' })
+      getMissions({ creator_id: creatorId, status: 'completed' }),
+      getMissions({ creator_id: creatorId, status: 'expired' }),
     ])
-      .then(([active, completed]) => {
-        const all = [...active, ...completed]
+      .then(([active, completed, expired]) => {
+        const all = [...active, ...completed, ...expired]
         setMissions(all)
         if (all.length > 0) setCreator(all[0].creator)
+        else {
+          // 미션 없어도 유저 정보 가져오기
+          import('../utils/api.js').then(({ default: api }) => {
+            api.get(`/users/${creatorId}`).then(setCreator).catch(() => {})
+          })
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -36,13 +43,22 @@ export default function CreatorProfile() {
 
   const active = missions.filter(m => m.status === 'active')
   const completed = missions.filter(m => m.status === 'completed')
-  const totalRaised = missions.reduce((s, m) => s + (parseFloat(m.current_ton) || 0), 0).toFixed(2)
+  const expired = missions.filter(m => m.status === 'expired')
+  const totalRaised = missions.reduce((s, m) => s + (parseInt(m.current_amount) || 0), 0)
+
+  const tabList = [
+    { key: 'active', label: `진행 중 (${active.length})`, items: active },
+    { key: 'completed', label: `목표 달성 (${completed.length})`, items: completed },
+    { key: 'expired', label: `만료 (${expired.length})`, items: expired },
+  ].filter(t => t.items.length > 0)
+
+  const currentItems = tabList.find(t => t.key === tab)?.items || active
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto' }}>
       <div className="topbar">
         <button className="back-btn" onClick={() => navigate(-1)}>‹</button>
-        <span className="topbar-title">Creator</span>
+        <span className="topbar-title">크리에이터</span>
       </div>
       <div className="page" style={{ paddingTop: 12 }}>
         <div style={{
@@ -50,29 +66,23 @@ export default function CreatorProfile() {
           textAlign: 'center', marginBottom: 20, paddingBottom: 20,
           borderBottom: '1px solid rgba(255,255,255,0.06)'
         }}>
-          {creator
-            ? <Avatar user={creator} size={72} />
-            : <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--bg-secondary)' }} />
-          }
+          <Avatar user={creator} size={72} />
           <h1 style={{ fontSize: 20, fontWeight: 800, marginTop: 12 }}>
-            {creator?.first_name}{creator?.last_name ? ` ${creator.last_name}` : ''}
+            {creator?.nickname || '크리에이터'}
           </h1>
-          {creator?.username && (
-            <div style={{ fontSize: 14, color: 'var(--text-hint)', marginTop: 2 }}>@{creator.username}</div>
-          )}
 
           <div style={{ display: 'flex', gap: 28, marginTop: 16 }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>{active.length}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>Live</div>
+              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>진행 중</div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 20, fontWeight: 800 }}>{completed.length}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>Completed</div>
+              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>목표 달성</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 800 }}>${totalRaised}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>Raised</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>{formatAmount(totalRaised)}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-hint)' }}>총 후원 의향</div>
             </div>
           </div>
 
@@ -86,28 +96,28 @@ export default function CreatorProfile() {
                 style={{ flex: 1 }}
                 onClick={() => navigate(`/creator/${creatorId}/request`)}
               >
-                ✉️ Request
+                ✉️ 미션 요청
               </button>
             )}
           </div>
         </div>
 
-        {/* Tabs */}
-        {completed.length > 0 && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            {['active', 'completed'].map(t => (
+        {/* 탭 */}
+        {tabList.length > 1 && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            {tabList.map(t => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={t.key}
+                onClick={() => setTab(t.key)}
                 style={{
-                  padding: '8px 16px', borderRadius: 99,
-                  background: tab === t ? 'var(--accent)' : 'var(--bg-secondary)',
-                  color: tab === t ? 'white' : 'var(--text-hint)',
-                  fontWeight: tab === t ? 700 : 400,
+                  padding: '8px 14px', borderRadius: 99,
+                  background: tab === t.key ? 'var(--accent)' : 'var(--bg-secondary)',
+                  color: tab === t.key ? 'white' : 'var(--text-hint)',
+                  fontWeight: tab === t.key ? 700 : 400,
                   fontSize: 13, border: 'none', cursor: 'pointer'
                 }}
               >
-                {t === 'active' ? `Live (${active.length})` : `Completed (${completed.length})`}
+                {t.label}
               </button>
             ))}
           </div>
@@ -118,12 +128,12 @@ export default function CreatorProfile() {
         {!loading && missions.length === 0 && (
           <div className="empty">
             <div className="icon">🌱</div>
-            <div>No missions yet</div>
+            <div>아직 미션이 없어요</div>
           </div>
         )}
 
-        {(tab === 'active' ? active : completed).map(m => (
-          <div key={m.id} style={{ opacity: m.status === 'completed' ? 0.7 : 1 }}>
+        {currentItems.map(m => (
+          <div key={m.id} style={{ opacity: m.status !== 'active' ? 0.7 : 1 }}>
             <MissionCard mission={m} />
           </div>
         ))}
