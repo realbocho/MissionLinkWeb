@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       .select(`*, creator:users!creator_id(id, nickname, profile_image), pledges(id, status)`)
       .order('created_at', { ascending: false })
 
-    if (creator_id) query = query.eq('creator_id', creator_id)
+    if (creator_id) query = query.eq('creator_id', String(creator_id))
     if (status) query = query.eq('status', status)
 
     const { data, error } = await query
