@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getMission } from '../utils/api.js'
+import { getMissions } from '../utils/api.js'
 
 export function useMission(id) {
   const [mission, setMission] = useState(null)
@@ -8,8 +8,12 @@ export function useMission(id) {
 
   const fetch = () => {
     setLoading(true)
-    getMission(id)
-      .then(setMission)
+    getMissions()
+      .then(list => {
+        const found = list.find(m => m.id === id)
+        if (found) setMission(found)
+        else setError('미션을 찾을 수 없어요')
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }
