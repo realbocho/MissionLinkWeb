@@ -27,8 +27,8 @@ export const getMe = () => api.get('/users/me')
 
 // 후원 의향
 export const createPledge = (data) => api.post('/pledges', data)
-export const confirmPledge = (id) => api.patch(`/pledges/${id}`, { action: 'confirm' })
-export const cancelPledge = (id) => api.patch(`/pledges/${id}`, { action: 'cancel' })
+export const confirmPledge = (id) => api.patch('/pledges/confirm', { pledge_id: id, action: 'confirm' })
+export const cancelPledge = (id) => api.patch('/pledges/confirm', { pledge_id: id, action: 'cancel' })
 
 // 미션 요청
 export const getRequests = () => api.get('/requests')
