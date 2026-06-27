@@ -73,7 +73,7 @@ export default function CreateMission() {
 
         <div className="card">
           <div className="label">미션 제목</div>
-          <input className="input" placeholder="예) 목표 달성 시 라이브 방송 진행!" value={form.title} onChange={e => set('title', e.target.value)} maxLength={80} />
+          <input className="input" placeholder="예) 목표 달성 시 키링 제작!" value={form.title} onChange={e => set('title', e.target.value)} maxLength={80} />
         </div>
 
         <div className="card">
