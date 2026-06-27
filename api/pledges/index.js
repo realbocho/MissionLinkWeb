@@ -7,7 +7,6 @@ export default withAuth(async (req, res) => {
 
   if (req.method === 'POST') {
     const { mission_id, amount } = req.body
-
     const parsedAmount = parseInt(String(amount).replace(/,/g, ''))
 
     if (!mission_id || !parsedAmount || parsedAmount < 1000) {
@@ -59,11 +58,20 @@ export default withAuth(async (req, res) => {
     })
 
     if (mission.openchat_link) {
+      // 오픈채팅방 링크 알림 — 클릭 안내 포함
       await createNotification({
         user_id: userId,
         type: 'openchat_link',
         title: '오픈채팅방 링크가 도착했어요! 💬',
-        body: `"${mission.title}" 후원 감사해요! 오픈채팅방에 입장해주세요.`,
+        body: `"${mission.title}" 후원 감사해요! 👇 아래 알림을 클릭해서 오픈채팅방에 입장해주세요.`,
+        link: `/mission/${mission_id}`
+      })
+      // 카카오페이 송금 가이드 알림 — 클릭하면 가이드로 이동
+      await createNotification({
+        user_id: userId,
+        type: 'openchat_link',
+        title: '오픈채팅방 링크 👆',
+        body: `클릭해서 오픈채팅방에 입장 후 카카오페이로 송금해주세요!`,
         link: mission.openchat_link
       })
       await createNotification({
@@ -76,11 +84,12 @@ export default withAuth(async (req, res) => {
       await supabase.from('pledges').update({ openchat_sent: true }).eq('id', pledge.id)
     }
 
+    // 크리에이터 알림 — 미션 상세 페이지로 이동해서 입금 확인
     await createNotification({
       user_id: mission.creator_id,
       type: 'pledge_confirmed',
       title: '새 후원 의향이 등록됐어요 💜',
-      body: `${parsedAmount.toLocaleString()}원 후원 의향이 등록됐어요. 입금 확인 후 처리해주세요.`,
+      body: `${parsedAmount.toLocaleString()}원 후원 의향이 등록됐어요. 👆 클릭해서 입금 확인 후 처리해주세요.`,
       link: `/mission/${mission_id}`
     })
 
