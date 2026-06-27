@@ -16,6 +16,7 @@ export default function CreatorProfile() {
   const isOwnProfile = webUser && String(webUser.id) === String(creatorId)
 
   useEffect(() => {
+    console.log('[CreatorProfile] creatorId:', creatorId)
     Promise.all([
       getMissions({ creator_id: creatorId, status: 'active' }),
       getMissions({ creator_id: creatorId, status: 'completed' }),
