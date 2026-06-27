@@ -20,7 +20,7 @@ export default function IncomingRequests() {
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [accepting, setAccepting] = useState(null)
-  const [acceptForm, setAcceptForm] = useState({ goal_amount: '', winner_count: '', weighted: true })
+  const [acceptForm, setAcceptForm] = useState({ goal_amount: '', winner_count: '', weighted: true, contact_email: '' })
 
   useEffect(() => {
     api.get('/requests')
@@ -49,7 +49,8 @@ export default function IncomingRequests() {
         action: 'accept',
         goal_ton: parsed,
         winner_count: acceptForm.winner_count === '' ? 1 : parseInt(acceptForm.winner_count),
-        weighted: acceptForm.weighted
+        weighted: acceptForm.weighted,
+        contact_email: acceptForm.contact_email.trim() || null
       })
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'accepted', mission_id: mission.id } : r))
       setAccepting(null)
@@ -115,6 +116,20 @@ export default function IncomingRequests() {
                         onChange={e => setAcceptForm(f => ({ ...f, goal_amount: e.target.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',') }))}
                         autoFocus
                       />
+                    </div>
+
+                    <div style={{ marginBottom: 8 }}>
+                      <div className="label">당첨자 연락용 이메일</div>
+                      <input
+                        className="input"
+                        type="email"
+                        placeholder="예) creator@email.com"
+                        value={acceptForm.contact_email}
+                        onChange={e => setAcceptForm(f => ({ ...f, contact_email: e.target.value }))}
+                      />
+                      <div style={{ fontSize: 11, color: 'var(--text-hint)', marginTop: 4 }}>
+                        추첨 당첨자에게 공개돼요
+                      </div>
                     </div>
 
                     <div style={{ marginBottom: 8 }}>
