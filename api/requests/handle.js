@@ -60,7 +60,8 @@ export default withAuth(async (req, res) => {
         description: request.content,
         goal_amount: parsedAmount,
         winner_count: winner_count === undefined ? 1 : parseInt(winner_count),
-        weighted: weighted !== false
+        weighted: weighted !== false,
+        contact_email: req.body.contact_email?.trim() || null
       })
       .select()
       .single()
