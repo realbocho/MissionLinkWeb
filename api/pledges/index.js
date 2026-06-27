@@ -63,8 +63,15 @@ export default withAuth(async (req, res) => {
         user_id: userId,
         type: 'openchat_link',
         title: '오픈채팅방 링크가 도착했어요! 💬',
-        body: `"${mission.title}" 후원 감사해요! 아래 오픈채팅방에서 카카오페이로 송금해주세요.`,
+        body: `"${mission.title}" 후원 감사해요! 오픈채팅방에 입장해주세요.`,
         link: mission.openchat_link
+      })
+      await createNotification({
+        user_id: userId,
+        type: 'openchat_link',
+        title: '카카오페이 송금 방법 안내 💳',
+        body: `오픈채팅방에서 카카오페이로 송금하는 방법을 확인해주세요.`,
+        link: 'https://story.kakaopay.com/138-kakaopay-open/'
       })
       await supabase.from('pledges').update({ openchat_sent: true }).eq('id', pledge.id)
     }
