@@ -5,10 +5,12 @@ import { createNotification } from '../../lib/notify.js'
 export default withAuth(async (req, res) => {
   const { id: userId } = req.user
 
-  // POST — 후원 의향 등록
   if (req.method === 'POST') {
     const { mission_id, amount } = req.body
-    if (!mission_id || !amount || amount < 1000) {
+
+    const parsedAmount = parseInt(String(amount).replace(/,/g, ''))
+
+    if (!mission_id || !parsedAmount || parsedAmount < 1000) {
       return res.status(400).json({ error: '미션 ID와 금액(최소 1,000원)이 필요해요' })
     }
 
@@ -24,7 +26,6 @@ export default withAuth(async (req, res) => {
       return res.status(400).json({ error: '본인 미션에는 후원 의향을 등록할 수 없어요' })
     }
 
-    // 중복 확인
     const { data: existing } = await supabase
       .from('pledges')
       .select('id, status')
@@ -36,13 +37,12 @@ export default withAuth(async (req, res) => {
       return res.status(409).json({ error: '이미 후원 의향을 등록했어요' })
     }
 
-    // 등록 (취소됐던 건이면 새로 insert)
     const { data: pledge, error } = await supabase
       .from('pledges')
       .upsert({
         mission_id,
         user_id: userId,
-        amount: parseInt(amount),
+        amount: parsedAmount,
         status: 'pending',
         openchat_sent: false,
         confirmed_at: null,
@@ -53,13 +53,11 @@ export default withAuth(async (req, res) => {
 
     if (error) return res.status(500).json({ error: error.message })
 
-    // 미션 금액 업데이트
     await supabase.rpc('update_mission_amount', {
       p_mission_id: mission_id,
-      p_delta: parseInt(amount)
+      p_delta: parsedAmount
     })
 
-    // 오픈채팅 링크 알림 발송 (링크 있을 때만)
     if (mission.openchat_link) {
       await createNotification({
         user_id: userId,
@@ -71,12 +69,11 @@ export default withAuth(async (req, res) => {
       await supabase.from('pledges').update({ openchat_sent: true }).eq('id', pledge.id)
     }
 
-    // 크리에이터 알림
     await createNotification({
       user_id: mission.creator_id,
       type: 'pledge_confirmed',
       title: '새 후원 의향이 등록됐어요 💜',
-      body: `${amount.toLocaleString()}원 후원 의향이 등록됐어요. 입금 확인 후 처리해주세요.`,
+      body: `${parsedAmount.toLocaleString()}원 후원 의향이 등록됐어요. 입금 확인 후 처리해주세요.`,
       link: `/mission/${mission_id}`
     })
 
