@@ -129,6 +129,8 @@ export default function MissionDetail() {
   const { mission, loading, error, refetch } = useMission(id)
   const { pct, remaining, done } = useMissionProgress(mission)
   const webUser = getWebUser()
+  const [shareMenuOpen, setShareMenuOpen] = useState(false)
+  const [expireLoading, setExpireLoading] = useState(false)
   console.log('[MissionDetail] webUser.id:', webUser?.id, '/ creator_id:', mission?.creator_id)
   const isCreator = webUser && String(webUser.id) === String(mission?.creator_id)
 
