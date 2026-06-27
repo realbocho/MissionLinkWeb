@@ -131,8 +131,6 @@ export default function MissionDetail() {
   const webUser = getWebUser()
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const [expireLoading, setExpireLoading] = useState(false)
-  console.log('[MissionDetail] webUser.id:', webUser?.id, '/ creator_id:', mission?.creator_id)
-  console.log('[MissionDetail] mission keys:', mission ? Object.keys(mission) : 'null')
   const isCreator = webUser && String(webUser.id) === String(mission?.creator_id)
 
   const handleShareMission = async () => {
@@ -262,6 +260,15 @@ export default function MissionDetail() {
             </a>
           </div>
         )}
+
+        {/* 면책 안내 */}
+        <div style={{
+          fontSize: 11, color: 'var(--text-hint)', lineHeight: 1.6,
+          padding: '8px 12px', marginBottom: 12,
+          background: 'var(--bg-secondary)', borderRadius: 8
+        }}>
+          ⚠️ 후원금 송금 및 미션 이행은 크리에이터와 팬 간의 약속이에요. 피해 발생 시 MissionLink는 책임지지 않으며, 해당 크리에이터에게 직접 문의해주세요.
+        </div>
 
         {/* 이미 등록한 경우 */}
         {myPledge && myPledge.status !== 'cancelled' && (
