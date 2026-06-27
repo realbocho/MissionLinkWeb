@@ -53,6 +53,19 @@ export default function CreateMission() {
       </div>
       <div className="page" style={{ paddingTop: 12 }}>
 
+        {/* 주의사항 */}
+        <div style={{
+          background: '#8b5cf611', border: '1px solid #8b5cf633',
+          borderRadius: 'var(--radius-sm)', padding: '12px 14px', marginBottom: 12
+        }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--accent)', marginBottom: 4 }}>⚠️ 미션 등록 시 주의사항</div>
+          <div style={{ fontSize: 12, color: 'var(--text-hint)', lineHeight: 1.8 }}>
+            • 실제로 이행할 수 있는 미션만 등록해주세요<br />
+            • 허위 미션, 사기성 미션은 즉시 계정이 정지돼요<br />
+            • 미션 이행 후 반드시 만료 처리 및 수수료를 납부해주세요
+          </div>
+        </div>
+
         {/* 수수료 안내 */}
         <div style={{
           background: '#ef444411', border: '1px solid #ef444433',
@@ -73,7 +86,7 @@ export default function CreateMission() {
 
         <div className="card">
           <div className="label">미션 제목</div>
-          <input className="input" placeholder="예) 목표 달성 시 키링 제작!" value={form.title} onChange={e => set('title', e.target.value)} maxLength={80} />
+          <input className="input" placeholder="예) 목표 달성 시 라이브 방송 진행!" value={form.title} onChange={e => set('title', e.target.value)} maxLength={80} />
         </div>
 
         <div className="card">
@@ -92,8 +105,7 @@ export default function CreateMission() {
           <div className="label">오픈채팅방 링크</div>
           <input className="input" placeholder="https://open.kakao.com/o/xxxxxxxx" value={form.openchat_link} onChange={e => set('openchat_link', e.target.value)} />
           <div style={{ fontSize: 12, color: 'var(--text-hint)', marginTop: 6, lineHeight: 1.6 }}>
-            후원 의향 등록 시 팬에게 자동으로 발송돼요.
-            나중에 추가할 수도 있어요.<br />
+            후원 의향 등록 시 팬에게 자동으로 발송돼요. 나중에 추가할 수도 있어요.<br />
             <a href="https://open.kakao.com/d/4CbN3J" target="_blank" rel="noopener noreferrer"
               style={{ color: 'var(--accent)', fontWeight: 600 }}>
               오픈채팅방 만드는 법 가이드 →
