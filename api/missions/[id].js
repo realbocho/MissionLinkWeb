@@ -5,7 +5,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   const { id } = req.query
 
-  // GET — 미션 상세 (공개)
   if (req.method === 'GET') {
     const { data: mission, error } = await supabase
       .from('missions')
@@ -13,7 +12,7 @@ export default async function handler(req, res) {
         *,
         creator:users!creator_id(id, nickname, profile_image),
         pledges(
-          id, amount, status, created_at,
+          id, amount, status, user_id, created_at,
           user:users!user_id(id, nickname, profile_image)
         )
       `)
@@ -28,7 +27,6 @@ export default async function handler(req, res) {
     return res.status(200).json(mission)
   }
 
-  // PATCH — 오픈채팅 링크 수정 등
   if (req.method === 'PATCH') {
     const authHeader = req.headers['authorization']
     if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: '로그인이 필요해요' })
