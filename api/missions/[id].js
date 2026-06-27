@@ -10,10 +10,10 @@ export default async function handler(req, res) {
       .from('missions')
       .select(`
         *,
-        creator:users!creator_id(id, nickname, profile_image),
+        creator:users!missions_creator_id_fkey(id, nickname, profile_image),
         pledges(
           id, amount, status, user_id, created_at,
-          user:users!user_id(id, nickname, profile_image)
+          user:users!pledges_user_id_fkey(id, nickname, profile_image)
         )
       `)
       .eq('id', id)
