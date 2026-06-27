@@ -8,6 +8,9 @@ const TYPE_ICON = {
   request_rejected: '❌',
   mission_completed:'🎉',
   winner_selected:  '🏆',
+  pledge_confirmed: '✅',
+  pledge_cancelled: '❌',
+  openchat_link:    '💬',
 }
 
 function timeAgo(dateStr) {
@@ -40,16 +43,22 @@ export default function Notifications() {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
-  const handleClick = async (notif) => {
-    // 읽음 처리
+  const handleClick = (notif) => {
+    // 읽음처리는 백그라운드로 (기다리지 않음)
     if (!notif.is_read) {
-      await markOneRead(notif.id)
+      markOneRead(notif.id).catch(console.error)
       setNotifications(prev =>
         prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n)
       )
     }
-    // 링크 이동
-    if (notif.link) navigate(notif.link)
+    // 즉시 이동
+    if (notif.link) {
+      if (notif.link.startsWith('http')) {
+        window.open(notif.link, '_blank')
+      } else {
+        navigate(notif.link)
+      }
+    }
   }
 
   return (
@@ -60,11 +69,7 @@ export default function Notifications() {
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            style={{
-              background: 'none', border: 'none',
-              color: 'var(--accent)', fontSize: 13,
-              cursor: 'pointer', fontWeight: 600
-            }}
+            style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}
           >
             모두 읽음
           </button>
@@ -98,11 +103,9 @@ export default function Notifications() {
               border: notif.is_read
                 ? '1px solid transparent'
                 : '1px solid rgba(139,92,246,0.3)',
-              transition: 'opacity 0.15s',
               position: 'relative'
             }}
           >
-            {/* 읽지 않은 알림 표시 */}
             {!notif.is_read && (
               <div style={{
                 position: 'absolute', top: 14, right: 14,
@@ -110,22 +113,14 @@ export default function Notifications() {
                 background: 'var(--accent)'
               }} />
             )}
-
             <span style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>
               {TYPE_ICON[notif.type] || '🔔'}
             </span>
-
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                fontWeight: notif.is_read ? 400 : 700,
-                fontSize: 14, marginBottom: 3
-              }}>
+              <div style={{ fontWeight: notif.is_read ? 400 : 700, fontSize: 14, marginBottom: 3 }}>
                 {notif.title}
               </div>
-              <div style={{
-                fontSize: 13, color: 'var(--text-hint)',
-                lineHeight: 1.5
-              }}>
+              <div style={{ fontSize: 13, color: 'var(--text-hint)', lineHeight: 1.5 }}>
                 {notif.body}
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-hint)', marginTop: 6, opacity: 0.7 }}>
