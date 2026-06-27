@@ -1,0 +1,76 @@
+import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import api from '../utils/api.js'
+import { showAlert } from '../utils/web.js'
+
+export default function RequestMission() {
+  const { creatorId } = useParams()
+  const navigate = useNavigate()
+  const [content, setContent] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!content.trim()) return showAlert('Please describe the mission you want!')
+    setLoading(true)
+    try {
+      await api.post('/requests', { creator_id: parseInt(creatorId), content: content.trim() })
+      showAlert('🎉 Request sent!\nThe creator will review it and set a goal amount.')
+      navigate(-1)
+    } catch (e) {
+      showAlert(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <div className="topbar">
+        <button className="back-btn" onClick={() => navigate(-1)}>‹</button>
+        <span className="topbar-title">Request a Mission</span>
+      </div>
+
+      <div className="page" style={{ paddingTop: 12 }}>
+        <p style={{ color: 'var(--text-hint)', fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>
+          Tell the creator what you'd like them to do. If they accept, they'll set a funding goal!
+        </p>
+
+        <div className="card">
+          <div className="label">What do you want the creator to do?</div>
+          <textarea
+            className="input"
+            placeholder="e.g. Do a live cooking stream, post a behind-the-scenes video, sing a song of my choice..."
+            value={content}
+            onChange={e => setContent(e.target.value)}
+            rows={5}
+            maxLength={300}
+            autoFocus
+          />
+          <div style={{
+            textAlign: 'right', fontSize: 12,
+            color: content.length > 260 ? 'var(--danger)' : 'var(--text-hint)',
+            marginTop: 6
+          }}>
+            {content.length}/300
+          </div>
+        </div>
+
+        <div style={{
+          padding: '12px 14px', background: 'var(--bg-secondary)',
+          borderRadius: 'var(--radius-sm)', marginBottom: 16,
+          fontSize: 13, color: 'var(--text-hint)', lineHeight: 1.5
+        }}>
+          💡 The creator sets the goal amount and reward when they accept.
+        </div>
+
+        <button
+          className="btn-primary"
+          onClick={handleSubmit}
+          disabled={loading || !content.trim()}
+        >
+          {loading ? 'Sending...' : '📬 Send Request'}
+        </button>
+      </div>
+    </div>
+  )
+}
