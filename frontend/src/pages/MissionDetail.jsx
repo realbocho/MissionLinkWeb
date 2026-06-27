@@ -60,7 +60,7 @@ function PledgeForm({ mission, refetch }) {
     setLoading(true)
     try {
       await createPledge({ mission_id: mission.id, amount: parsed })
-      showAlert('후원 의향이 등록됐어요! 💜\n오픈채팅방 링크는 알림으로 보내드릴게요.')
+      showAlert('후원 의향이 등록됐어요! 💜\n오픈채팅방 링크는 알림으로 보내드릴게요.\n\n🎰 추첨 안내\n크리에이터가 미션 이행 후 만료 처리 시 즉시 추첨이 진행돼요. 당첨 결과는 앱 알림으로 알려드려요!')
       setAmount('')
       setTimeout(refetch, 1000)
     } catch (e) {
@@ -147,7 +147,14 @@ export default function MissionDetail() {
 
   const handleExpire = async () => {
     const confirmed = await showConfirm(
-      `미션을 만료하기 전에!\n\n총 후원 의향 금액: ${formatAmount(mission.current_amount)}\n납부하셔야 할 수수료 (10%): ${formatAmount(Math.round(mission.current_amount * FEE_RATE))}\n\n수수료 납부 후 만료해주세요.\n미납 확인 시 계정이 정지될 수 있어요.\n\n납부를 완료하셨나요?`
+      `미션을 만료하기 전에!\n\n` +
+      `총 후원 의향 금액: ${formatAmount(mission.current_amount)}\n` +
+      `납부하셔야 할 수수료 (10%): ${formatAmount(Math.round(mission.current_amount * FEE_RATE))}\n\n` +
+      `⚠️ 수수료 납부 후 만료해주세요.\n미납 확인 시 계정이 정지될 수 있어요.\n\n` +
+      `🎰 만료 즉시 추첨이 진행돼요!\n` +
+      `입금 확인된 후원자 중 ${mission.winner_count === 0 ? '전원이' : `${mission.winner_count}명이`} 당첨되며\n` +
+      `당첨자에게 앱 알림이 즉시 발송돼요.\n\n` +
+      `납부를 완료하셨나요?`
     )
     if (!confirmed) return
     setExpireLoading(true)
@@ -245,6 +252,21 @@ export default function MissionDetail() {
               💡 후원 금액이 클수록 당첨 확률이 높아요!
             </div>
           )}
+        </div>
+
+        {/* 추첨 안내 */}
+        <div style={{
+          background: '#8b5cf611', border: '1px solid #8b5cf633',
+          borderRadius: 'var(--radius-sm)', padding: '12px 14px', marginBottom: 12
+        }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--accent)', marginBottom: 6 }}>🎰 추첨 안내</div>
+          <div style={{ fontSize: 12, color: 'var(--text-hint)', lineHeight: 1.8 }}>
+            • 크리에이터가 미션을 이행한 후 <b style={{ color: 'var(--text)' }}>만료 처리 시 즉시 추첨</b>이 진행돼요<br />
+            • 당첨자는 {mission.winner_count === 0 ? '후원자 전원' : `${mission.winner_count}명`}이에요<br />
+            • {mission.weighted ? '후원 금액이 클수록 당첨 확률이 높아요 (가중 추첨)' : '모든 후원자가 동일한 확률로 추첨돼요'}<br />
+            • 입금이 확인된 후원자만 추첨 대상이에요<br />
+            • 당첨 결과는 앱 알림으로 즉시 발송돼요
+          </div>
         </div>
 
         {/* 오픈채팅방 안내 */}
