@@ -106,7 +106,7 @@ export default function CreateMission() {
           <input className="input" placeholder="https://open.kakao.com/o/xxxxxxxx" value={form.openchat_link} onChange={e => set('openchat_link', e.target.value)} />
           <div style={{ fontSize: 12, color: 'var(--text-hint)', marginTop: 6, lineHeight: 1.6 }}>
             후원 의향 등록 시 팬에게 자동으로 발송돼요. 나중에 추가할 수도 있어요.<br />
-            <a href="https://open.kakao.com/d/4CbN3J" target="_blank" rel="noopener noreferrer"
+            <a href="/guide/openchat"
               style={{ color: 'var(--accent)', fontWeight: 600 }}>
               오픈채팅방 만드는 법 가이드 →
             </a>
