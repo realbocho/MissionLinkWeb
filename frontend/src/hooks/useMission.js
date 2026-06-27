@@ -24,6 +24,6 @@ export function useMissionProgress(mission) {
   const goal = parseInt(mission.goal_amount) || 0
   const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0
   const remaining = Math.max(0, goal - current)
-  const done = current >= goal
+  const done = goal > 0 && current >= goal
   return { pct, remaining, done }
 }
