@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createMission } from '../utils/api.js'
-import { showAlert, PLATFORM_OPENCHAT } from '../utils/web.js'
+import { showAlert, PLATFORM_OPENCHAT, KAKAOPAY_GUIDE } from '../utils/web.js'
 
 function Toggle({ checked, onChange }) {
   return (
@@ -82,6 +82,10 @@ export default function CreateMission() {
           <a href={PLATFORM_OPENCHAT} target="_blank" rel="noopener noreferrer"
             style={{ display: 'inline-block', marginTop: 8, background: '#FEE500', color: '#000000CC', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
             💬 플랫폼 수수료 채팅방
+          </a>
+          <a href={KAKAOPAY_GUIDE} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-block', marginTop: 8, marginLeft: 8, color: 'var(--accent)', fontWeight: 600, fontSize: 12 }}>
+            💸 송금 받는 법 →
           </a>
         </div>
 
