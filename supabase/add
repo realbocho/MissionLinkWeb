@@ -1,0 +1,15 @@
+ALTER TABLE missions
+ADD CONSTRAINT missions_creator_id_fkey
+FOREIGN KEY (creator_id) REFERENCES users(id);
+
+ALTER TABLE pledges
+ADD CONSTRAINT pledges_user_id_fkey
+FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE pledges
+ADD CONSTRAINT pledges_mission_id_fkey
+FOREIGN KEY (mission_id) REFERENCES missions(id);
+
+ALTER TABLE missions ADD COLUMN IF NOT EXISTS contact_email TEXT;
+
+TRUNCATE TABLE notifications, winners, pledges, missions, users RESTART IDENTITY CASCADE;
